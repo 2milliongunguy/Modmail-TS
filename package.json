@@ -1,0 +1,53 @@
+{
+  "name": "modmail-ts",
+  "version": "1.0.0",
+  "description": "<div align=\"center\">   <img src=\"https://i.imgur.com/o558Qnq.png\" align=\"center\">   <br>   <strong><i>A feature-rich Modmail bot for Discord.</i></strong>   <br>   <br>",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx --env-file=.env src/index.ts",
+    "build": "tsc",
+    "start": "node ./dist/index.js",
+    "lint": "eslint . --ext .ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/2milliongunguy/Modmail-TS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/2milliongunguy/Modmail-TS/issues"
+  },
+  "homepage": "https://github.com/2milliongunguy/Modmail-TS#readme",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.9.1",
+    "@types/pg": "^8.20.0",
+    "eslint": "^10.4.0",
+    "globals": "^17.6.0",
+    "jiti": "^2.7.0",
+    "prisma": "^7.8.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.4",
+    "@tailwindcss/postcss": "^4",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint-config-next": "16.2.6",
+    "tailwindcss": "^4"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "chalk": "^5.6.2",
+    "discord.js": "^14.26.4",
+    "dotenv": "^17.4.2",
+    "tsx": "^4.21.0",
+    "pg": "^8.21.0",
+    "next": "16.2.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  }
+}
