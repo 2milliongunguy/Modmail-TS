@@ -1,0 +1,3 @@
+{"timestamp":"00:00:00.622","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:00.623","source":"Server","level":"LOG","message":"  We detected TypeScript in your project and created a tsconfig.json file for you."}
+{"timestamp":"00:00:00.702","source":"Server","level":"LOG","message":""}
