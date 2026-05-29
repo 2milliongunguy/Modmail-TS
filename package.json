@@ -9,12 +9,18 @@
   ],
   "scripts": {
     "dev:bot": "npm run dev --workspace=apps/bot",
+    "dev:bot:register": "npm run dev:register --workspace=apps/bot",
+    "bot:register": "npm run prod:register --workspace=apps/bot",
     "dev:web": "npm run dev --workspace=apps/web",
     "build:shared": "npm run build --workspace=packages/shared",
     "build:apps": "npm run build --workspaces",
     "build": "npm run build:shared && npm run build:apps",
     "start:prod": "pm2-runtime ecosystem.config.cjs",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "db:migrate": "npm run db:migrate --workspace=packages/shared --",
+    "db:generate": "npm run db:generate --workspace=packages/shared --",
+    "db:push": "npm run db:push --workspace=packages/shared --",
+    "db:studio": "npm run db:studio --workspace=packages/shared --"
   },
   "repository": {
     "type": "git",

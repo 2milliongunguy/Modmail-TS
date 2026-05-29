@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "NODE_ENV=development DEBUG=true tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node ../../dist/apps/bot/src/index.js"
+    "start": "NODE_ENV=prod node ../../dist/apps/bot/src/index.js",
+    "prod:register": "NODE_ENV=prod node ../../dist/apps/bot/src/register-commands.ts",
+    "dev:register": "NODE_ENV=development DEBUG=true tsx src/register-commands.ts"
   },
   "dependencies": {
     "@modmail/shared": "*",

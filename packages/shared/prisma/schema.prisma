@@ -1,13 +1,80 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model guildConfig {
+  guildId String
+  key String
+  name String
+  value String
+
+  @@id([guildId, key])
+  @@index([guildId,key])
+}
+
+model ticket {
+  id Int @id @default(autoincrement())
+  guildId String
+  userId String
+  dmId String
+  channelId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  snoozedAt DateTime?
+  closedAt DateTime?
+  subscribed String[]
+
+  messages message[]
+  actions actions[]
+
+  @@index([userId, guildId])
+  @@index([userId, id])
+}
+
+model message {
+  id Int @id @default(autoincrement())
+  messageId String @unique
+  ticketId Int
+  authorId String?
+  deleted Boolean @default(false)
+  reply Boolean @default(false)
+  anonymous Boolean @default(false)
+
+  // first value will always be original
+  content String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ticket ticket @relation(fields: [ticketId], references: [id])
+  attachments attachments[]
+
+  @@index([ticketId])
+}
+
+model actions {
+  id Int @id @default(autoincrement())
+  ticketId Int
+  authorId String
+  action String
+  metadata Json?
+  
+  createdAt DateTime @default(now())
+
+  ticket ticket @relation(fields: [ticketId], references: [id])
+}
+
+model attachments {
+  id Int @id @default(autoincrement())
+  messageId Int
+  url String
+
+  message message @relation(fields: [messageId], references: [id])
+  @@index([messageId])
 }

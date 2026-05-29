@@ -5,12 +5,17 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
-    "build": "prisma generate"
+    "build": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:pull": "prisma db pull",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
-    "pg": "^8.21.0"
+    "pg": "^8.21.0",
+    "dotenv": "^17.4.2"
   },
   "devDependencies": {
     "@types/pg": "^8.20.0",

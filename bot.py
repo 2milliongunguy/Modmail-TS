@@ -1441,6 +1441,7 @@ class ModmailBot(commands.Bot):
         logger.info("Updating permissions for %s, %s (add=%s).", name, value, add)
         await self.config.update()
 
+    # !!!!!!
     async def on_message(self, message):
         await self.wait_for_connected()
         if message.type == discord.MessageType.pins_add and message.author == self.user:
@@ -1465,6 +1466,7 @@ class ModmailBot(commands.Bot):
                 content = ""
             await self.mention_channel.send(content=content, embed=em)
 
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         # --- MODERATOR-ONLY MESSAGE LOGGING ---
         # If a moderator sends a message directly in a thread channel (not via modmail command), log it
         if not message.author.bot and not isinstance(message.channel, discord.DMChannel):
@@ -1829,6 +1831,7 @@ class ModmailBot(commands.Bot):
                 embed = discord.Embed(description=leave_message, color=self.error_color)
                 await thread.channel.send(embed=embed)
 
+    # ?????????????????????????????
     async def on_member_join(self, member):
         thread = await self.threads.find(recipient=member)
         if thread:
@@ -1840,6 +1843,8 @@ class ModmailBot(commands.Bot):
             embed = discord.Embed(description=join_message, color=self.mod_color)
             await thread.channel.send(embed=embed)
 
+
+    # !!!!!!!!!!!!!!!!!!!!
     async def on_message_delete(self, message):
         """Support for deleting linked messages"""
 
@@ -2174,6 +2179,7 @@ class ModmailBot(commands.Bot):
 
         logger.info(f"Deleted {expired_logs.deleted_count} expired logs.")
 
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
     def format_channel_name(self, author, exclude_channel=None, force_null=False):
         """Sanitises a username for use with text channel names
 
