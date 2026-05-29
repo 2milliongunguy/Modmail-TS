@@ -2,7 +2,7 @@
 // wtf is that
 
 import path from "node:path";
-import { logger } from "../../../packages/shared/lib/logger";
+import { logger } from "../../../packages/shared/lib/logger.js";
 import dotenv from "dotenv";
 import { Client, Events, GatewayIntentBits, Partials } from "discord.js";
 

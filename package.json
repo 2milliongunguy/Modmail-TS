@@ -2,7 +2,6 @@
   "name": "modmail-ts",
   "version": "1.0.0",
   "description": "<div align=\"center\">   <img src=\"https://i.imgur.com/o558Qnq.png\" align=\"center\">   <br>   <strong><i>A feature-rich Modmail bot for Discord.</i></strong>   <br>   <br>",
-  "main": "./dist/index.js",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -14,7 +13,7 @@
     "build:shared": "npm run build --workspace=packages/shared",
     "build:apps": "npm run build --workspaces",
     "build": "npm run build:shared && npm run build:apps",
-    "start:prod": "pm2-runtime ecosystem.config.js",
+    "start:prod": "pm2-runtime ecosystem.config.cjs",
     "lint": "eslint ."
   },
   "repository": {
