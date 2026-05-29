@@ -4,6 +4,11 @@ import chalk from "chalk";
 
 const timestamp = () => chalk.dim(`${new Date().toISOString()}`);
 
+interface fatalArgs {
+  exit?: number;
+  [key: string]: any;
+}
+
 export const logger = {
   info: (message: string, ...args: any[]) => {
     console.log(`${timestamp()} ${chalk.blue("INFO")} ${message}`, ...args);
@@ -21,12 +26,22 @@ export const logger = {
   bot: (message: string, ...args: any[]) => {
     console.log(`${timestamp()} ${chalk.cyan.bold("BOT")} ${message}`, ...args);
   },
-  fatal: (message: string, ...args: any[]) => {
+  fatal: (message: string, ...args: fatalArgs[]) => {
+    const exitArg = args.find(
+      (arg) => typeof arg === "object" && "exit" in arg,
+    );
+
+    const exitCode = exitArg?.exit;
+
+    const otherArgs = args.filter((arg) => arg !== exitArg);
     console.log(
       `${timestamp()} ${chalk.red.bold("FATAL")} ${message}`,
-      ...args,
+      ...otherArgs,
     );
-    process.exit(1);
+
+    if (exitCode !== undefined) {
+      process.exit(exitCode);
+    }
   },
   startup: (message: string, ...args: any[]) => {
     console.log(
