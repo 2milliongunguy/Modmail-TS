@@ -1,4 +1,11 @@
-import { ChannelType, type Message } from "discord.js";
+import {
+  Attachment,
+  Client,
+  EmbedBuilder,
+  PermissionsBitField,
+  type Interaction,
+  type Message,
+} from "discord.js";
 import { logger } from "../../../../packages/shared/lib/logger";
 import { db } from "../../../../packages/shared/src/db";
 import { getSetting } from "./config";
@@ -45,17 +52,65 @@ async function createTicket(
     }
     logger.debug(`${category.name}: `, { category });
 
+    const supportIds = await db.guildConfig.findUnique({
+      where: { guildId_key: { guildId, key: "supportRoles" } },
+      select: { value: true },
+    });
+
+    const ids = supportIds?.value.split(",") ?? [];
+
     const channel = await guild.channels.create({
       name: author?.username,
       type: 0,
       parent: category.id,
       permissionOverwrites: [
         {
-          id: author.id,
-          allow: ["ViewChannel", "SendMessages"],
+          id: guildId,
+          deny: [
+            PermissionsBitField.Flags.ViewChannel,
+            PermissionsBitField.Flags.SendMessages,
+          ],
         },
+        {
+          id: author.id,
+          allow: [
+            PermissionsBitField.Flags.ViewChannel,
+            PermissionsBitField.Flags.SendMessages,
+          ],
+        },
+        ...ids.map((id) => ({
+          id,
+          allow: [
+            PermissionsBitField.Flags.ViewChannel,
+            PermissionsBitField.Flags.SendMessages,
+          ],
+        })),
       ],
     });
+
+    const guildUser = await guild.members.fetch(author.id);
+
+    if (!guildUser) {
+      logger.error(`Failed to get guild user ${author.username} (${authorId})`);
+    }
+
+    const embed = new EmbedBuilder()
+      .setTitle(author.username)
+      .setDescription(
+        `${author}'s account was created ${author.createdTimestamp}`,
+      )
+      .setFields([
+        {
+          name: "Roles",
+          value: `${guildUser ? guildUser.roles.cache.map((role) => `<@&${role.id}>`) : "Failed to fetch guild user"}`,
+        },
+      ])
+      .setAuthor({ name: author.username, iconURL: author.displayAvatarURL() })
+      .setTimestamp()
+      .setFooter({
+        text: `User ID: ${author.id} • DM ID: ${message?.channelId}`,
+      })
+      .setColor("Yellow");
 
     const data = await db.ticket.create({
       data: {
@@ -69,6 +124,24 @@ async function createTicket(
     tickets.set(dmId, channel.id);
     guildTicket.set(dmId, guild.id);
     ticketId.set(dmId, data.id);
+
+    await channel.send({ embeds: [embed] }).then(async () => {
+      message?.react("✅");
+      await db.message
+        .create({
+          data: {
+            messageId: message?.id || "",
+            ticketId: data.id,
+            authorId: author.id,
+            authorName: author.id,
+            content: [message?.content || ""],
+            authorProfileLink: author.displayAvatarURL(),
+          },
+        })
+        .catch((e) => {
+          logger.error("Failed to store message", { e });
+        });
+    });
 
     return message?.react("✅");
   } catch (error) {
@@ -106,9 +179,21 @@ export async function sendMessage(message: Message) {
       return message?.react("🔄");
     }
 
+    const embed = new EmbedBuilder()
+      .setDescription(`${message.content}`)
+      .setAuthor({
+        name: message.author.username,
+        iconURL: message.author.displayAvatarURL(),
+      })
+      .setTimestamp()
+      .setFooter({
+        text: `Message ID: ${message.id}`,
+      })
+      .setColor("Yellow");
+
     return ticketChannel
-      .send(message.content)
-      .then(async (m) => {
+      .send({ embeds: [embed] })
+      .then(async () => {
         message.react("✅");
         await db.message
           .create({
@@ -117,12 +202,12 @@ export async function sendMessage(message: Message) {
               ticketId: tID,
               authorId: message.author.id,
               authorName: message.author.username,
+              content: [message.content],
               authorProfileLink: message.author.displayAvatarURL(),
             },
           })
           .catch((e) => {
             logger.error("Failed to store message", { e });
-            m.react("❌");
           });
       })
       .catch((e) => {
@@ -134,6 +219,70 @@ export async function sendMessage(message: Message) {
     return message.react("❌");
   }
 }
-// async function sendReply
+export async function sendReply(
+  content: string,
+  interaction: Interaction,
+  guildId: string,
+  channelId: string,
+  ticketId: number,
+  client: Client,
+  anonymous: boolean = false,
+  attatchments?: Attachment,
+): Promise<string | EmbedBuilder> {
+  const ticket = await db.ticket.findFirst({
+    where: { guildId, channelId, closedAt: null },
+    select: { dmId: true, userId: true },
+  });
+
+  if (!ticket) {
+    return "Ticket not found or doesn't exist.";
+  }
+
+  let dm = await client.channels.fetch(ticket.dmId);
+
+  if (!dm) {
+    const user = await client.users.fetch(ticket.userId, {
+      force: true,
+      cache: false,
+    });
+
+    if (user) {
+      dm = await user.createDM();
+    } else return "Couldn't create or find a DM channel";
+  }
+
+  const embed = new EmbedBuilder()
+    .setDescription(`${content}`)
+    .setAuthor({
+      name: anonymous ? "Anonymous" : interaction.user.username,
+      iconURL: anonymous
+        ? interaction.guild!.iconURL()!.toString()
+        : interaction.user.displayAvatarURL(),
+    })
+    .setTimestamp()
+    .setFooter({
+      text: interaction.guild!.name,
+    })
+    .setColor("Green");
+
+  if (!dm.isSendable()) return "Cannot send DM to user";
+
+  await dm.send({ embeds: [embed] }).then(async (message) => {
+    await db.message.create({
+      data: {
+        messageId: message.id,
+        ticketId,
+        authorId: interaction.user.id,
+        authorName: interaction.user.username,
+        content: [content],
+        authorProfileLink: interaction.user.displayAvatarURL(),
+        anonymous,
+        reply: true,
+      },
+    });
+  });
+
+  return embed as EmbedBuilder;
+}
 
 export { createTicket };

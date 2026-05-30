@@ -58,6 +58,7 @@ model message {
   attachments attachments[]
 
   @@index([ticketId])
+  @@index([messageId])
 }
 
 model actions {

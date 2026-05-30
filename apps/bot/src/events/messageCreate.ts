@@ -20,14 +20,12 @@ const messageCreate: Event<Events.MessageCreate> = {
         );
 
         //* make it ask the user for the guild to make ticket if more than 1 guilds are shared
-        const hi = await createTicket(
+        await createTicket(
           message.author.id,
           message.channelId,
           process.env.GUILD_ID!,
           message,
-        );
-
-        logger.debug(``, { hi });
+        )
         return;
       } else {
         logger.bot(`Sending reply from ${message.author.username}: `, {
