@@ -10,7 +10,7 @@ datasource db {
 model guildConfig {
   guildId String
   key String
-  name String
+  name String?
   value String
 
   @@id([guildId, key])
@@ -42,6 +42,8 @@ model message {
   messageId String @unique
   ticketId Int
   authorId String?
+  authorName String
+  authorProfileLink String?
   deleted Boolean @default(false)
   reply Boolean @default(false)
   anonymous Boolean @default(false)
